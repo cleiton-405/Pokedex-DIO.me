@@ -1,27 +1,63 @@
-function convertPokemonToLi(pokemon){ // Função para retornar um li padrão para os pokemons
-    return `
-    <li class="pokemon">
-        <span class="number">#001</span>
-        <span class="name">${pokemon.name}</span>
-                
-        <div class="detail">
-            <ol class="types">
-                <li class="type">grass</li>
-                <li class="type">poison</li>
-            </ol>
+const pokemonList = document.getElementById('pokemonList')
+const loadMoreButton = document.getElementById('loadMoreButton')
 
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/1.svg" alt="${pokemon.name}">
-        </div>
-    </li>
-    `
+const maxRecords = 1302
+const limit = 10
+let offset = 0
+
+/*
+
+1, 2, 3, 4, 5       0 - 5
+6, 7, 8, 9, 10      5 - 5
+11                  10 - 5 (remove o botao)
+
+*/
+
+
+function loadPokemonItens(offset, limit){
+    pokeApi.getPokemons(offset, limit).then((pokemons = []) =>{ 
+    // Fizemos uma requisição HTTP para buscar a lista e passamos por parâmetro uma lista vazia
+    
+    const newHtml = pokemons.map((pokemon) => `
+        <li class="pokemon ${pokemon.type}">
+            <span class="number">#${pokemon.number}</span>
+            <span class="name">${pokemon.name}</span>
+                
+            <div class="detail">
+                <ol class="types">
+                    ${pokemon.types.map((type) => `<li class="type ${type}">${type}</li>`).join('')}
+                </ol>
+
+                <img src="${pokemon.photo}" 
+                     alt="${pokemon.name}">
+            </div>
+        </li>
+        `).join('')
+    // Usando .map para listar os pokemons em uma li
+    pokemonList.innerHTML += newHtml 
+    // Mostrando a lista com innerHtml  
+    })
 }
 
-const pokemonList = document.getElementById('pokemonList')
+loadPokemonItens(offset, limit)
 
-pokeApi.getPokemons().then((pokemons = []) =>{ // Passando por parâmetro uma lista vazia
+loadMoreButton.addEventListener('click', () =>{ 
+    // Botão criado com o evento de clique e um limitador
     
-    pokemonList.innerHTML += pokemons.map(convertPokemonToLi).join('')
-    // Usando .map para listar os pokemons em uma li
+    offset += limit
+
+    const qtdRecordsWithNexPage = offset + limit // Quantidade de páginas = 0 + 5
+
+    if(qtdRecordsWithNexPage >= maxRecords){ // If que mostra as páginas e faz o cálculo
+        const newLimit = maxRecords - offset // Cálculo do novo limite
+        loadPokemonItens(offset, newLimit) 
+        // Caso ele atinja um valor maior que 15, remove o botão
+
+        loadMoreButton.parentElement.removeChild(loadMoreButton) // Remover o botão
+    }else{
+        loadPokemonItens(offset, limit)
+        // Esse botão ao ser clicado, vai mostrar de 5 em 5 á mais na lista de pokemons
+    }
 })
 
 /* 
@@ -45,5 +81,11 @@ const listItems = [] // array para listar os pokemons
 
         listItems.push(convertPokemonToLi(pokemon)) // Puxando uma lista com todos pokemons
     }
+
+-----------------------------------------------------------------------------------------------
+
+${pokemon.sprites.other.dream_world.front_default} - Estamos buscando as respectivas imagens dos pokemons, acessando esses locais (sprites, other, dream_world e front_default) dentro da Api dos pokemons
+
+-----------------------------------------------------------------------------------------------
 
 */
