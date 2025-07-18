@@ -1,18 +1,9 @@
 const pokemonList = document.getElementById('pokemonList')
 const loadMoreButton = document.getElementById('loadMoreButton')
 
-const maxRecords = 1302
-const limit = 10
+const maxRecords = 1302 // Tamanho máximo para a quantidade de pokemons da Api
+const limit = 10 // Limite de 10 por página (atualizações)
 let offset = 0
-
-/*
-
-1, 2, 3, 4, 5       0 - 5
-6, 7, 8, 9, 10      5 - 5
-11                  10 - 5 (remove o botao)
-
-*/
-
 
 function loadPokemonItens(offset, limit){
     pokeApi.getPokemons(offset, limit).then((pokemons = []) =>{ 
@@ -29,8 +20,10 @@ function loadPokemonItens(offset, limit){
                 </ol>
 
                 <img src="${pokemon.photo}" 
-                     alt="${pokemon.name}">
+                     alt="${pokemon.name}">     
             </div>
+
+            <button type="button"><a href="info-pokemons.html">Info</a></button>
         </li>
         `).join('')
     // Usando .map para listar os pokemons em uma li
